@@ -213,8 +213,16 @@ def add_listing():
     else:
         return jsonify({"msg": "Customer not found"}), 404
 
+@app.route("/api_status", methods=["GET"])
+@cross_origin()
+def api_status():
+    return jsonify({"status": "ok"}), 200
+
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    debug = True
+    if os.environ.get("FLYDATE_ENV") == 'staging' or os.environ.get("FLYDATE_ENV") == 'production':
+        debug = False
+    app.run(debug=debug)
