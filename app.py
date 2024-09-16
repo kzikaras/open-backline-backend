@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_cors import CORS, cross_origin
 from flask import jsonify
@@ -14,7 +15,6 @@ from datetime import timedelta
 from flask_jwt_extended import jwt_required, create_access_token
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import get_listings_by_customer_id
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -22,11 +22,18 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 # localhost DB
-app.config.update(
-    SECRET_KEY='Halothedog123',
-    SQLALCHEMY_DATABASE_URI='postgresql://postgres:Halothedog123@localhost/openbackline',
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
-)
+if os.environ.get("FLYDATE_ENV") == 'staging' or os.environ.get("FLYDATE_ENV") == 'production':
+    app.config.update(
+        SECRET_KEY=os.environ.get("SECRET_KEY"),
+        SQLALCHEMY_DATABASE_URI=os.environ.get("SQLALCHEMY_DATABASE_URI"),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
+    )
+else:
+    app.config.update(
+        SECRET_KEY='Halothedog123',
+        SQLALCHEMY_DATABASE_URI='postgresql://postgres:Halothedog123@localhost/openbackline',
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
+    )
 
 db = SQLAlchemy(app)
 
